@@ -111,8 +111,8 @@ class Inference:
             None,
             seed,
             stage1_only=False,
-            with_mesh_postprocess=False,
-            with_texture_baking=False,
+            with_mesh_postprocess=True,
+            with_texture_baking=True,
             with_layout_postprocess=True,
             use_vertex_color=True,
             stage1_inference_steps=None,
@@ -351,6 +351,8 @@ def load_image(path):
 def load_mask(path):
     mask = load_image(path)
     mask = mask > 0
+    print("mask dim", mask.ndim)
+    print("mask shape", mask.shape)
     if mask.ndim == 3:
         mask = mask[..., -1]
     return mask

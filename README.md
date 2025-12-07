@@ -21,6 +21,30 @@ SAM 3D Objects is one part of SAM 3D, a pair of models for object and human mesh
 
 <p align="center"><img src="doc/arch.png"/></p>
 
+## Tianyi workspace
+
+```
+export CUDA_HOME=/usr/local/cuda
+export CPATH=$CUDA_HOME/include:$CPATH
+export C_INCLUDE_PATH=$CUDA_HOME/include:$C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH=$CUDA_HOME/include:$CPLUS_INCLUDE_PATH
+```
+
+```
+echo '#include <cuda_runtime.h>' > test.cpp
+/home/render1/anaconda3/envs/sam3d-objects/bin/x86_64-conda-linux-gnu-c++ -c test.cpp
+```
+
+
+```
+export CPATH=/usr/local/cuda/include:$CPATH
+```
+
+```
+python ./run_scene_recon.py
+```
+
+
 ## Latest updates
 
 **11/19/2025** - Checkpoints Launched, Web Demo and Paper are out.

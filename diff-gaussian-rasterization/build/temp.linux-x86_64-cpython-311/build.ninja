@@ -1,0 +1,36 @@
+ninja_required_version = 1.3
+cxx = /home/render1/anaconda3/envs/sam3d-objects/bin/x86_64-conda-linux-gnu-c++
+nvcc = /home/render1/anaconda3/envs/sam3d-objects/bin/nvcc
+
+cflags = -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/render1/anaconda3/envs/sam3d-objects/include -I/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/include -L/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/lib -L/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/lib/stubs -DNDEBUG -D_FORTIFY_SOURCE=2 -O2 -isystem /home/render1/anaconda3/envs/sam3d-objects/include -I/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/include -L/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/lib -L/home/render1/anaconda3/envs/sam3d-objects/targets/x86_64-linux/lib/stubs -fPIC -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/TH -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/THC -I/home/render1/anaconda3/envs/sam3d-objects/include -I/home/render1/anaconda3/envs/sam3d-objects/include/python3.11 -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=_C -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++17
+cuda_cflags = -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/TH -I/home/render1/anaconda3/envs/sam3d-objects/lib/python3.11/site-packages/torch/include/THC -I/home/render1/anaconda3/envs/sam3d-objects/include -I/home/render1/anaconda3/envs/sam3d-objects/include/python3.11 -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -I/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/third_party/glm/ -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=_C -D_GLIBCXX_USE_CXX11_ABI=0 -gencode=arch=compute_80,code=compute_80 -gencode=arch=compute_80,code=sm_80 -ccbin /home/render1/anaconda3/envs/sam3d-objects/bin/x86_64-conda-linux-gnu-cc -std=c++17
+cuda_dlink_post_cflags = 
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  depfile = $out.d
+  deps = gcc
+  command = $nvcc --generate-dependencies-with-compile --dependency-output $out.d $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+
+
+build /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/backward.o: cuda_compile /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/backward.cu
+build /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/forward.o: cuda_compile /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
+build /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/rasterizer_impl.o: cuda_compile /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/rasterizer_impl.cu
+build /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/ext.o: compile /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/ext.cpp
+build /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/rasterize_points.o: cuda_compile /home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/rasterize_points.cu
+
+
+
+
+
+

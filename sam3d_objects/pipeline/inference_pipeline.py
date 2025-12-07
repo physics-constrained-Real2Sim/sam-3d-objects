@@ -92,7 +92,7 @@ class InferencePipeline:
         slat_mean=SLAT_MEAN,
         slat_std=SLAT_STD,
     ):
-        self.rendering_engine = rendering_engine
+        self.rendering_engine = "nvdiffrast"
         self.device = torch.device(device)
         self.compile_model = compile_model
         logger.info(f"self.device: {self.device}")

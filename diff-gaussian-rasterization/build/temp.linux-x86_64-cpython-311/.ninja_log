@@ -1,0 +1,6 @@
+# ninja log v7
+0	3947	1765102903557465442	/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/forward.o	e9e1e0d2e08913cf
+0	4175	1765102903557465442	/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/backward.o	c302b7a357213298
+1	13557	1765102903558465440	/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/cuda_rasterizer/rasterizer_impl.o	7442d1d4f26c8f5a
+1	24527	1765102903558465440	/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/ext.o	f04922eb872b3155
+1	85437	1765102903558465440	/home/render1/tianyi/phy_recon/mip-splatting/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-311/rasterize_points.o	5e6e02b779baeef2
