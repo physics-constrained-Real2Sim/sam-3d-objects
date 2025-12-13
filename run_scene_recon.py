@@ -27,12 +27,25 @@ from tqdm import tqdm
 _R_ZUP_TO_YUP = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]], dtype=np.float32)
 _R_YUP_TO_ZUP = _R_ZUP_TO_YUP.T
 
-T_sam_to_real_world = np.array([
+T_sam_to_google_world = np.array([
     [-0.545447, -0.664139,  0.511280,  0.782866],
     [-0.837612,  0.453687, -0.304259, -0.528839],
     [-0.029891, -0.594211, -0.803753,  0.745482],
     [ 0.0,       0.0,       0.0,       1.0     ]
 ], dtype=np.float64)
+
+google_to_YCB_world = np.array([
+    [0.998189,  -0.060155, 0.000593, -0.262995],
+    [0.060012,   0.996409, 0.059737,  0.135953],
+    [-0.004184, -0.059593, 0.998214, -0.226270 ], 
+    [0.000000,   0.000000, 0.000000,  1.000000 ],
+])
+
+T_sam_to_YCB_world = np.array([
+    [-0.49409037, -0.69058015,  0.52818015,  0.55070761,],
+    [-0.8691231,   0.37670512, -0.32049726, -0.29947273,],
+    [ 0.02236035, -0.61740755, -0.78632499,  0.54612016,],
+    [ 0.,          0.,          0.,          1.,        ]])
 
 
 def make_scene_untextured_mesh(*outputs, in_place=False):
@@ -99,14 +112,16 @@ def make_mesh_to_real_world(output, in_place=False):
     mesh = output["glb"]
     if mesh is None:
         return None
-    mesh.apply_transform(T_sam_to_real_world)
+    mesh.apply_transform(T_sam_to_YCB_world)
     
     return output
 
 if __name__ == "__main__":
+
+    seed  = 42
     
-    dataset_dir = "../dataset/google5"
-    zarr_path = "../dataset/google5/scene.zarr"  # 修改成你的路径
+    dataset_dir = "../dataset/ycb20"
+    zarr_path = f"{dataset_dir}/scene.zarr"  # 修改成你的路径
     output_dir = f"{dataset_dir}/SAM3D_recon"
     
     if not os.path.exists(output_dir):
@@ -161,7 +176,7 @@ if __name__ == "__main__":
     for obj_idx, obj in enumerate(tqdm(GT_objs)):
         body_id = obj["bid"]
         object_mask = (seg_mask == body_id)
-        output = inference(rgb, object_mask, seed=42, pointmap=pointmaP)
+        output = inference(rgb, object_mask, seed=seed, pointmap=pointmaP)
         # output = inference(rgb, object_mask, seed=42)
         body_reconstructed_path = f"{output_dir}/obj{body_id}"
         output_path = f"{body_reconstructed_path}/obj{body_id}.obj"
@@ -186,4 +201,5 @@ if __name__ == "__main__":
         scene.add_geometry(m)
 
     scene.export(f"{output_dir}/scene.glb")
-    scene.export(f"{output_dir}/scene.obj")
+    print("SAM reconstructed scene:", f"{output_dir}/scene.glb")
+    # scene.export(f"{output_dir}/scene.obj")

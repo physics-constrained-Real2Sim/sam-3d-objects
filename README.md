@@ -23,6 +23,17 @@ SAM 3D Objects is one part of SAM 3D, a pair of models for object and human mesh
 
 ## Tianyi workspace
 
+Install diff gaussian splatting
+
+```
+cd diff-gaussian-rasterization
+pip install .
+```
+
+Install nvdiffrast
+
+refer to: [https://github.com/NVlabs/nvdiffrast](https://github.com/NVlabs/nvdiffrast)
+
 ```
 export CUDA_HOME=/usr/local/cuda
 export CPATH=$CUDA_HOME/include:$CPATH
@@ -43,6 +54,8 @@ export CPATH=/usr/local/cuda/include:$CPATH
 ```
 python ./run_scene_recon.py
 ```
+
+
 
 
 ## Latest updates
