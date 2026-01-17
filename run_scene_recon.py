@@ -47,6 +47,24 @@ T_sam_to_YCB_world = np.array([
     [ 0.02236035, -0.61740755, -0.78632499,  0.54612016,],
     [ 0.,          0.,          0.,          1.,        ]])
 
+google_to_realgoogle_world = np.array([
+    [0.648639, -0.128275, -0.231452, -0.051512],
+    [0.139958,  0.686315,  0.011860, -0.242891],
+    [0.224580, -0.057222,  0.661095, -0.275744],
+    [0.000000,  0.000000,  0.000000,  1.0     ]
+])
+
+T_sam_to_realgoogle_world = np.array([
+    [-0.23943519, -0.35145183,  0.55669521,  0.35157894],
+    [-0.65155986,  0.21137328, -0.1467923,  -0.48743136],
+    [-0.09432744, -0.56794314, -0.39912352,  0.42316769],
+    [ 0.,          0.,          0.,          1.        ]
+], dtype=np.float64)
+
+# sam to real toy4k share same transform as sam to real_google
+# i have no idea why
+
+print(google_to_realgoogle_world @ T_sam_to_google_world)
 
 def make_scene_untextured_mesh(*outputs, in_place=False):
     import trimesh
@@ -112,15 +130,14 @@ def make_mesh_to_real_world(output, in_place=False):
     mesh = output["glb"]
     if mesh is None:
         return None
-    mesh.apply_transform(T_sam_to_YCB_world)
+    mesh.apply_transform(T_sam_to_realgoogle_world) # T_sam_to_YCB_world or T_sam_to_google_world
     
     return output
 
 if __name__ == "__main__":
 
     seed  = 42
-    
-    dataset_dir = "../dataset/ycb20"
+    dataset_dir = "../dataset/Real_toy4K_4"
     zarr_path = f"{dataset_dir}/scene.zarr"  # 修改成你的路径
     output_dir = f"{dataset_dir}/SAM3D_recon"
     
@@ -134,6 +151,8 @@ if __name__ == "__main__":
     partial_points, partial_colors, partial_mask = data.get("partial", (None,)*3)
     complete_points, complete_mask = data.get("complete", (None,)*2)
     GT_objs = data.get("objects", [])
+
+    cv2.imwrite(f"{output_dir}/rgb.png", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
     # load model
     tag = "hf"
     config_path = f"checkpoints/{tag}/pipeline.yaml"
