@@ -5,6 +5,7 @@ import numpy as np
 import trimesh
 from icecream import ic
 import trimesh
+import argparse
 
 import torch
 # # import inference code
@@ -34,37 +35,27 @@ T_sam_to_google_world = np.array([
     [ 0.0,       0.0,       0.0,       1.0     ]
 ], dtype=np.float64)
 
-google_to_YCB_world = np.array([
-    [0.998189,  -0.060155, 0.000593, -0.262995],
-    [0.060012,   0.996409, 0.059737,  0.135953],
-    [-0.004184, -0.059593, 0.998214, -0.226270 ], 
-    [0.000000,   0.000000, 0.000000,  1.000000 ],
-])
-
 T_sam_to_YCB_world = np.array([
     [-0.49409037, -0.69058015,  0.52818015,  0.55070761,],
     [-0.8691231,   0.37670512, -0.32049726, -0.29947273,],
     [ 0.02236035, -0.61740755, -0.78632499,  0.54612016,],
     [ 0.,          0.,          0.,          1.,        ]])
 
-google_to_realgoogle_world = np.array([
-    [0.648639, -0.128275, -0.231452, -0.051512],
-    [0.139958,  0.686315,  0.011860, -0.242891],
-    [0.224580, -0.057222,  0.661095, -0.275744],
-    [0.000000,  0.000000,  0.000000,  1.0     ]
-])
+T_sam_to_real_toy4k_world = np.array([
+    [-0.38129531, -0.63319616,  0.67355582,  0.52828228],
+    [-0.91827658,  0.34350129, -0.19691045, -0.56742508],
+    [-0.10668502, -0.69359067, -0.71242524,  0.5078746 ],
+    [ 0.,          0.,          0.,          1.        ]
+], dtype=np.float64)
 
-T_sam_to_realgoogle_world = np.array([
-    [-0.23943519, -0.35145183,  0.55669521,  0.35157894],
-    [-0.65155986,  0.21137328, -0.1467923,  -0.48743136],
-    [-0.09432744, -0.56794314, -0.39912352,  0.42316769],
+T_sam_to_real_google_world = np.array([
+    [-0.38129531, -0.63319616,  0.67355582,  0.52828228],
+    [-0.91827658,  0.34350129, -0.19691045, -0.56742508],
+    [-0.10668502, -0.69359067, -0.71242524,  0.5078746 ],
     [ 0.,          0.,          0.,          1.        ]
 ], dtype=np.float64)
 
 # sam to real toy4k share same transform as sam to real_google
-# i have no idea why
-
-print(google_to_realgoogle_world @ T_sam_to_google_world)
 
 def make_scene_untextured_mesh(*outputs, in_place=False):
     import trimesh
@@ -124,26 +115,61 @@ def make_mesh_to_sam_scene(output, in_place=False):
     return output
 
 
-def make_mesh_to_real_world(output, in_place=False):
+def make_mesh_to_real_world(output, dataset_transform, in_place=False):
 
     output = make_mesh_to_sam_scene(output, in_place=in_place)
     mesh = output["glb"]
     if mesh is None:
         return None
-    mesh.apply_transform(T_sam_to_realgoogle_world) # T_sam_to_YCB_world or T_sam_to_google_world
+    mesh.apply_transform(dataset_transform) # T_sam_to_YCB_world or T_sam_to_real_toy4k_world
     
     return output
 
 if __name__ == "__main__":
 
-    seed  = 42
-    dataset_dir = "../dataset/Real_toy4K_4"
-    zarr_path = f"{dataset_dir}/scene.zarr"  # 修改成你的路径
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--seed", type=int, default=42)
+
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="google5",
+        required=True,
+        help="Choose dataset"
+    )
+
+    parser.add_argument(
+        "--transform",
+        type=str,
+        choices=["google", "YCB"],
+        required=True,
+        help="Choose transform"
+    )
+
+    args = parser.parse_args()
+    seed = args.seed
+    name = args.dataset
+    transform_type = args.transform
+    
+    # dataset direction 
+    dataset_dir = f"../dataset/{name}"
+
+    # create transform map
+    transform_map = {
+        "google": T_sam_to_google_world,
+        "YCB": T_sam_to_YCB_world,
+    }
+
+    # choose transform
+    dataset_transform = transform_map[transform_type]
+    # dataset meta
+    zarr_path = f"{dataset_dir}/scene.zarr"  
+    # output direction
     output_dir = f"{dataset_dir}/SAM3D_recon"
     
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
-
 
     data = read_scene_zarr(zarr_path)
     width, height, cam_position, fov_y_deg, target_look_at, cam_up_direction, near, far = data.get("metadata_camera", (None,)*7)
@@ -203,7 +229,7 @@ if __name__ == "__main__":
         if not os.path.exists(body_reconstructed_path):
             os.makedirs(body_reconstructed_path, exist_ok=True)
         ic(output.keys())
-        output = make_mesh_to_real_world(output, in_place=True)
+        output = make_mesh_to_real_world(output, dataset_transform, in_place=True)
         output["glb"].export(output_path)
         # baked_mesh_path = bake_color_vertex_to_texture(filename = output_path)
         
@@ -221,4 +247,3 @@ if __name__ == "__main__":
 
     scene.export(f"{output_dir}/scene.glb")
     print("SAM reconstructed scene:", f"{output_dir}/scene.glb")
-    # scene.export(f"{output_dir}/scene.obj")
