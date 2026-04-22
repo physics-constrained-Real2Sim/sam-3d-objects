@@ -55,6 +55,12 @@ T_sam_to_real_google_world = np.array([
     [ 0.,          0.,          0.,          1.        ]
 ], dtype=np.float64)
 
+T_sam_to_declutter = np.array([[ 0.72333555, -0.31423452 , 0.08155931 , 0.54059625,],
+                            [-0.32411951, -0.68765169 , 0.2251495,   0.3649873, ],
+                            [-0.01849772, -0.23874994, -0.75582216 , 0.39750016,],
+                            [ 0.,          0.,          0.   ,       1.  ,      ],])
+
+
 # sam to real toy4k share same transform as sam to real_google
 
 def make_scene_untextured_mesh(*outputs, in_place=False):
@@ -129,12 +135,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=6667848996)
 
     parser.add_argument(
         "--dataset",
         type=str,
-        default="google5",
+        default="demo_google7",
         required=True,
         help="Choose dataset"
     )
@@ -142,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--transform",
         type=str,
-        choices=["google", "YCB"],
+        choices=["google", "YCB", "real_toy4k", "real_google" , "declutter"],
         required=True,
         help="Choose transform"
     )
@@ -159,6 +165,9 @@ if __name__ == "__main__":
     transform_map = {
         "google": T_sam_to_google_world,
         "YCB": T_sam_to_YCB_world,
+        "real_toy4k": T_sam_to_real_toy4k_world,
+        "real_google": T_sam_to_real_google_world,
+        "declutter": T_sam_to_declutter
     }
 
     # choose transform
